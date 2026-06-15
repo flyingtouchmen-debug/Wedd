@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lock It In | Sajin & Jinisha</title>
+    <style>
+        /* --- Import Premium Fonts --- */
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Great+Vibes&family=Montserrat:wght@200;300;400&display=swap');
+
+        /* --- Premium Wedding Theme CSS Variables --- */
+        :root {
+            --emerald-dark: #0A1410;
+            --emerald-medium: #12251D;
+            --emerald-light: #1E3B2E;
+            --gold: #D4AF37;
+            --gold-light: #F3E5AB;
+            --gold-dark: #997A00;
+            --ivory: #FCFBF8;
+            --white: #FFFFFF;
+            
+            --font-script: 'Great Vibes', cursive;
+            --font-serif: 'Cormorant Garamond', serif;
+            --font-sans: 'Montserrat', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--emerald-dark);
+            color: var(--ivory);
+            overflow-x: hidden;
+            text-align: center;
+        }
+
+        /* =========================================
+           ROSE CURSOR HOVER EFFECT
+           ========================================= */
+        .cursor-rose {
+            position: fixed;
+            pointer-events: none;
+            z-index: 10000;
+            font-size: clamp(1rem, 2vw, 1.5rem);
+            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.4));
+            animation: floatRose 1.5s ease-out forwards;
+        }
+
+        @keyframes floatRose {
+            0% { transform: translate(-50%, -50%) scale(0.5) rotate(0deg); opacity: 0.9; }
+            100% { transform: translate(-50%, 80px) scale(1.2) rotate(120deg); opacity: 0; }
+        }
+
+        /* =========================================
+           AMBIENT ANIMATIONS (Balloons & Flowers)
+           ========================================= */
+        #ambient-animations {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 900; pointer-events: none; overflow: hidden;
+            opacity: 0; transition: opacity 2s ease-in; transition-delay: 1.5s;
+        }
+        body.opened #ambient-animations { opacity: 1; }
+
+        .ambient-balloon {
+            position: absolute; bottom: -100px;
+            border-radius: 80% 80% 80% 80% / 100% 100% 40% 40%;
+            box-shadow: inset -5px -5px 15px rgba(0,0,0,0.1);
+            animation: floatUpBalloon linear forwards;
+        }
+        .ambient-balloon::after {
+            content: ''; position: absolute; bottom: -30px; left: 50%;
+            width: 1px; height: 30px; background: rgba(255,255,255,0.3);
+            transform: translateX(-50%);
+        }
+
+        .ambient-flower {
+            position: absolute; top: -50px;
+            color: var(--gold-light); opacity: 0.6;
+            animation: fallFlower linear forwards;
+            text-shadow: 0 0 10px rgba(212,175,55,0.4);
+        }
+
+        @keyframes floatUpBalloon {
+            0% { transform: translateY(0) translateX(0) rotate(-5deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-120vh) translateX(50px) rotate(5deg); opacity: 0; }
+        }
+
+        @keyframes fallFlower {
+            0% { transform: translateY(0) rotate(0deg) scale(0.8); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(120vh) rotate(360deg) scale(1.2); opacity: 0; }
+        }
+
+        /* =========================================
+           RIBBON PULL ENTRANCE ANIMATION
+           ========================================= */
+        #entrance-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 9999; display: flex; align-items: center; justify-content: center;
+            background: transparent; transition: visibility 3s;
+        }
+
+        .door {
+            position: absolute; top: 0; height: 100vh; width: 50vw;
+            background: var(--emerald-dark);
+            background-image: linear-gradient(135deg, rgba(212,175,55,0.03) 25%, transparent 25%), 
+                              linear-gradient(225deg, rgba(212,175,55,0.03) 25%, transparent 25%);
+            background-size: 60px 60px;
+            transition: transform 1.5s cubic-bezier(0.8, 0, 0.2, 1);
+            transition-delay: 0.8s; z-index: 1; box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
+        }
+        .door-left { left: 0; border-right: 1px solid rgba(212,175,55,0.2); }
+        .door-right { right: 0; border-left: 1px solid rgba(212,175,55,0.2); }
+
+        .ribbon-band {
+            position: absolute; top: 50%; left: 0; width: 100vw; height: clamp(30px, 4vw, 40px);
+            background: linear-gradient(to bottom, #b58d1f, #D4AF37, #fdf1a9, #D4AF37, #997A00);
+            transform: translateY(-50%); z-index: 2; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            transition: transform 0.8s cubic-bezier(0.5, 0, 0.2, 1), opacity 0.8s ease;
+        }
+
+        .ribbon-left-half { width: 50vw; left: 0; position: absolute; height: 100%; background: inherit; transition: all 0.8s ease; transform-origin: left center;}
+        .ribbon-right-half { width: 50vw; right: 0; position: absolute; height: 100%; background: inherit; transition: all 0.8s ease; transform-origin: right center;}
+
+        .bow-center {
+            position: relative; z-index: 3;
+            width: clamp(90px, 15vw, 120px); height: clamp(90px, 15vw, 120px);
+            display: flex; align-items: center; justify-content: center; flex-direction: column;
+            cursor: pointer; transition: all 0.5s cubic-bezier(0.5, 0, 0.2, 1);
+            animation: pulse-glow 2s infinite;
+        }
+
+        .bow-knot {
+            width: clamp(45px, 8vw, 60px); height: clamp(45px, 8vw, 60px);
+            background: radial-gradient(circle, #fdf1a9, #D4AF37, #997A00);
+            border-radius: 50%; box-shadow: 0 5px 20px rgba(0,0,0,0.6), inset 0 -5px 10px rgba(0,0,0,0.3);
+            position: relative; z-index: 2;
+        }
+
+        .bow-loops { position: absolute; width: clamp(120px, 20vw, 160px); height: clamp(60px, 10vw, 80px); background: transparent; z-index: 1; }
+        .bow-loops::before, .bow-loops::after {
+            content: ''; position: absolute;
+            width: clamp(50px, 9vw, 70px); height: clamp(35px, 6vw, 50px);
+            border: clamp(5px, 1vw, 8px) solid #D4AF37; border-radius: 50px;
+            top: 50%; box-shadow: inset 0 5px 10px rgba(0,0,0,0.3), 0 5px 10px rgba(0,0,0,0.5);
+        }
+        .bow-loops::before { left: -10px; transform: translateY(-50%) rotate(-15deg); }
+        .bow-loops::after { right: -10px; transform: translateY(-50%) rotate(15deg); }
+
+        .pull-text {
+            position: absolute; bottom: -30px;
+            font-family: var(--font-sans); font-size: clamp(0.6rem, 2vw, 0.8rem);
+            letter-spacing: 4px; text-transform: uppercase; color: var(--gold);
+            white-space: nowrap; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .untied .bow-center { transform: scale(1.5) rotate(180deg); opacity: 0; pointer-events: none; }
+        .untied .ribbon-left-half { transform: scaleX(0); opacity: 0; }
+        .untied .ribbon-right-half { transform: scaleX(0); opacity: 0; }
+        .untied .door-left { transform: translateX(-100vw); }
+        .untied .door-right { transform: translateX(100vw); }
+
+        @keyframes pulse-glow {
+            0% { filter: drop-shadow(0 0 10px rgba(212,175,55,0.4)); transform: scale(1); }
+            50% { filter: drop-shadow(0 0 20px rgba(212,175,55,0.8)); transform: scale(1.05); }
+            100% { filter: drop-shadow(0 0 10px rgba(212,175,55,0.4)); transform: scale(1); }
+        }
+
+        /* =========================================
+           MAIN LAYOUT & HERO (Fluid Typography)
+           ========================================= */
+        #main-content { opacity: 0; transition: opacity 2s ease-in; transition-delay: 1.5s; position: relative; z-index: 2; }
+        body.opened #main-content { opacity: 1; }
+
+        .hero {
+            position: relative; min-height: 100vh; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; padding: 5vh 5vw;
+            background: linear-gradient(rgba(10,20,16,0.7), rgba(10,20,16,0.5), rgba(10,20,16,0.8)), url('https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=2000&q=80') center/cover no-repeat;
+            z-index: 1;
+        }
+
+        .hero::before {
+            content: ''; position: absolute; top: clamp(10px, 2vw, 20px); left: clamp(10px, 2vw, 20px); 
+            right: clamp(10px, 2vw, 20px); bottom: clamp(10px, 2vw, 20px);
+            border: 1px solid rgba(212, 175, 55, 0.4); pointer-events: none; z-index: 2;
+        }
+
+        .hero-title {
+            font-family: var(--font-sans); font-size: clamp(0.7rem, 2vw, 1rem);
+            letter-spacing: clamp(6px, 2vw, 10px); text-transform: uppercase;
+            color: var(--gold-light); margin-bottom: clamp(10px, 3vw, 20px); z-index: 3; text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+        }
+
+        .hero-names {
+            font-family: var(--font-script); font-size: clamp(3.8rem, 12vw, 8rem);
+            color: var(--white); text-shadow: 0 4px 20px rgba(0,0,0,0.9);
+            margin: clamp(5px, 2vw, 15px) 0; line-height: 1.1; z-index: 3;
+            padding: 0 10px;
+        }
+
+        .hero-date {
+            font-family: var(--font-serif); font-size: clamp(1.2rem, 4vw, 2.5rem);
+            letter-spacing: clamp(2px, 1vw, 4px); color: var(--gold);
+            margin-top: clamp(10px, 3vw, 20px); margin-bottom: clamp(30px, 6vw, 60px);
+            z-index: 3; display: flex; align-items: center; gap: clamp(8px, 2vw, 15px);
+            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+        }
+
+        .hero-date span { font-size: clamp(2.5rem, 8vw, 4.5rem); color: var(--white); line-height: 1; }
+
+        .countdown-wrapper {
+            position: relative; display: flex; justify-content: center;
+            gap: clamp(15px, 4vw, 40px); z-index: 3; flex-wrap: wrap; width: 100%; max-width: 600px;
+        }
+
+        .time-box { display: flex; flex-direction: column; align-items: center; position: relative; min-width: 60px; }
+
+        .time-box:not(:last-child)::after {
+            content: ':'; position: absolute; right: clamp(-12px, -2vw, -25px); top: clamp(5px, 2vw, 15px);
+            font-family: var(--font-serif); font-size: clamp(1.5rem, 4vw, 2rem);
+            color: var(--gold); opacity: 0.8; text-shadow: 0 2px 5px rgba(0,0,0,0.8);
+        }
+
+        .time-number {
+            font-family: var(--font-serif); font-size: clamp(2rem, 6vw, 3.5rem);
+            color: var(--white); font-weight: 300; line-height: 1; text-shadow: 0 5px 15px rgba(0,0,0,0.8);
+        }
+
+        .time-label {
+            font-size: clamp(0.55rem, 1.5vw, 0.7rem); text-transform: uppercase;
+            letter-spacing: clamp(2px, 1vw, 4px); color: var(--gold); margin-top: 10px; text-shadow: 0 2px 5px rgba(0,0,0,0.8);
+        }
+
+        /* =========================================
+           SECTIONS & INTERACTIVITY
+           ========================================= */
+        .section {
+            padding: clamp(60px, 10vw, 120px) 20px; opacity: 0;
+            transform: translateY(40px); transition: all 1.5s cubic-bezier(0.25, 1, 0.5, 1);
+            position: relative; width: 100%;
+        }
+        .section.visible { opacity: 1; transform: translateY(0); }
+        
+        .section-title { 
+            font-family: var(--font-serif); font-size: clamp(2.5rem, 6vw, 3.8rem);
+            margin-bottom: 20px; color: var(--gold); font-weight: 300; font-style: italic; line-height: 1.2;
+            position: relative; z-index: 5;
+        }
+
+        .details-section {
+            background-color: var(--emerald-dark); background-image: radial-gradient(circle at center, var(--emerald-medium) 0%, var(--emerald-dark) 100%);
+        }
+        
+        .details-grid { display: flex; justify-content: center; gap: clamp(30px, 5vw, 60px); flex-wrap: wrap; margin-top: clamp(30px, 5vw, 60px); width: 100%; position: relative; z-index: 5;}
+        
+        .detail-item {
+            background: rgba(255,255,255,0.02); border: 1px solid rgba(212,175,55,0.2);
+            padding: clamp(30px, 5vw, 50px) 20px; border-radius: 5px; width: 100%; max-width: 320px;
+            backdrop-filter: blur(10px); transition: all 0.4s; cursor: pointer;
+        }
+        .detail-item:hover { border-color: var(--gold); transform: translateY(-5px); background: rgba(255,255,255,0.05); }
+
+        .detail-icon { width: clamp(30px, 6vw, 40px); height: clamp(30px, 6vw, 40px); margin-bottom: 20px; fill: var(--gold); }
+        .detail-item h3 { font-family: var(--font-sans); font-size: clamp(0.9rem, 2.5vw, 1.1rem); letter-spacing: 3px; text-transform: uppercase; color: var(--white); margin-bottom: 15px; }
+        .detail-item p { font-size: clamp(0.9rem, 2.5vw, 1rem); font-family: var(--font-serif); line-height: 1.8; color: #ccc; }
+
+        .cheers-section { background: var(--ivory); color: var(--emerald-dark); overflow: hidden; }
+        .cheers-subtitle { font-family: var(--font-sans); font-size: clamp(0.7rem, 2vw, 0.8rem); letter-spacing: 3px; text-transform: uppercase; color: #666; margin-bottom: 40px; position: relative; z-index: 5;}
+        .glasses-wrapper { display: flex; justify-content: center; gap: 10px; height: 120px; cursor: pointer; position: relative; z-index: 5; }
+        .glass { font-size: clamp(3.5rem, 8vw, 4.5rem); transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); filter: drop-shadow(0 5px 5px rgba(0,0,0,0.1)); }
+        .glasses-wrapper.clinked .glass:nth-child(1) { transform: rotate(15deg) translate(15px, -15px); }
+        .glasses-wrapper.clinked .glass:nth-child(2) { transform: rotate(-15deg) translate(-15px, -15px); }
+
+        .champagne-bubble {
+            position: absolute; background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), rgba(212,175,55,0.6));
+            border-radius: 50%; bottom: -20px; opacity: 0; pointer-events: none; animation: riseUp 3s ease-in forwards;
+        }
+
+        .story-section { 
+            background: linear-gradient(rgba(10,20,16,0.85), rgba(10,20,16,0.85)), url('https://images.unsplash.com/photo-1606800052052-a08af7148866?auto=format&fit=crop&w=2000&q=80') center/cover no-repeat fixed; 
+            border-top: 1px solid rgba(212,175,55,0.3); border-bottom: 1px solid rgba(212,175,55,0.3); 
+        }
+        .story-text { font-family: var(--font-serif); font-size: clamp(1.1rem, 3vw, 1.3rem); line-height: 2; max-width: 700px; margin: 0 auto; color: var(--ivory); padding: 0 10px; position: relative; z-index: 5;}
+        
+        .wishes-wrapper { margin-top: clamp(50px, 8vw, 80px); width: 100%; position: relative; z-index: 5;}
+        .wish-form { display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: 500px; margin: 0 auto 50px auto; }
+        .wish-form input, .wish-form textarea {
+            width: 100%; padding: 15px; border: none; border-bottom: 1px solid rgba(212,175,55,0.5);
+            background: rgba(0,0,0,0.3); color: var(--white); font-family: var(--font-sans); font-size: 0.9rem; letter-spacing: 1px;
+            transition: border-color 0.3s, background 0.3s; border-radius: 4px 4px 0 0;
+        }
+        .wish-form input:focus, .wish-form textarea:focus { outline: none; border-color: var(--gold); background: rgba(0,0,0,0.6);}
+        .wish-form textarea { resize: vertical; min-height: 80px; }
+        
+        .wishes-board { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; width: 100%; }
+        .wish-card {
+            background: rgba(0,0,0,0.5); border: 1px solid rgba(212,175,55,0.3);
+            padding: clamp(20px, 5vw, 30px); width: 100%; max-width: 320px; text-align: left; border-radius: 4px;
+            animation: popIn 0.6s ease-out; backdrop-filter: blur(5px);
+        }
+        .wish-card h4 { font-family: var(--font-sans); font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 10px;}
+        .wish-card p { font-family: var(--font-serif); font-size: 1.1rem; color: var(--ivory); line-height: 1.6; font-style: italic; }
+
+        @keyframes popIn { 0% { transform: scale(0.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+        .rsvp-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-bottom: clamp(40px, 8vw, 60px); width: 100%; position: relative; z-index: 5;}
+        .rsvp-btn {
+            background: transparent; border: 1px solid var(--gold); color: var(--gold);
+            padding: 15px clamp(20px, 4vw, 40px); font-family: var(--font-sans); font-size: clamp(0.7rem, 2vw, 0.8rem);
+            letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.4s;
+            border-radius: 2px; width: 100%; max-width: 250px; text-align: center;
+        }
+        .rsvp-btn:hover, .rsvp-btn.selected { background: var(--gold); color: var(--emerald-dark); }
+
+        .scratch-container { display: flex; flex-direction: column; align-items: center; margin-top: clamp(30px, 6vw, 60px); width: 100%; position: relative; z-index: 5;}
+        
+        .scratch-card {
+            position: relative; width: 100%; max-width: 340px; height: 140px; background: var(--ivory);
+            border: 4px solid var(--gold); border-radius: 4px; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4); margin: 0 auto;
+        }
+        .hidden-date { font-family: var(--font-serif); font-size: clamp(2rem, 8vw, 2.8rem); font-weight: 600; color: var(--emerald-dark); }
+        canvas { position: absolute; top: 0; left: 0; cursor: crosshair; touch-action: none; border-radius: 2px;}
+
+        /* Confetti */
+        .confetti-piece { position: fixed; top: -10px; width: 8px; height: 12px; z-index: 9999; pointer-events: none; animation: fallConfetti linear forwards; }
+        @keyframes fallConfetti { to { transform: translateY(105vh) rotate(720deg); } }
+
+        /* Audio Button */
+        #music-btn {
+            position: fixed; bottom: clamp(15px, 4vw, 30px); right: clamp(15px, 4vw, 30px); width: 50px; height: 50px;
+            background: rgba(212,175,55,0.1); border: 1px solid var(--gold); border-radius: 50%;
+            z-index: 1000; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.3s; opacity: 0; visibility: hidden; backdrop-filter: blur(5px);
+        }
+        body.opened #music-btn { opacity: 1; visibility: visible; }
+        #music-btn:hover { background: var(--gold); }
+        #music-btn:hover .music-icon { color: var(--emerald-dark); }
+        .music-icon { font-size: 18px; color: var(--gold); transition: color 0.3s;}
+
+        @media (max-width: 500px) {
+            .time-box:not(:last-child)::after { display: none; }
+            .countdown-wrapper { gap: 15px; }
+            .time-box { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px; border: 1px solid rgba(212,175,55,0.2); min-width: 70px;}
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background Song - "Kanne Kanmaniye" -->
+    <audio id="bg-audio" loop><source src="kanne_kanmaniye.mp3" type="audio/mpeg"></audio>
+
+    <!-- Sound Effects -->
+    <audio id="ribbon-audio"><source src="https://actions.google.com/sounds/v1/magic/magical_focus_chime.ogg" type="audio/ogg"></audio>
+    <audio id="clink-audio"><source src="https://actions.google.com/sounds/v1/household/glass_clink.ogg" type="audio/ogg"></audio>
+    <audio id="pop-audio"><source src="https://actions.google.com/sounds/v1/water/water_drop.ogg" type="audio/ogg"></audio>
+    <audio id="success-audio"><source src="https://actions.google.com/sounds/v1/magic/chime_sparkle.ogg" type="audio/ogg"></audio>
+
+    <div id="music-btn" title="Play/Pause Music">
+        <span class="music-icon" id="music-icon">🎵</span>
+    </div>
+
+    <!-- 1. THE PREMIUM RIBBON UNTIE ENTRANCE -->
+    <div id="entrance-overlay">
+        <div class="door door-left"></div>
+        <div class="door door-right"></div>
+        
+        <div class="ribbon-band ribbon-left-half"></div>
+        <div class="ribbon-band ribbon-right-half"></div>
+        
+        <div class="bow-center" id="untie-btn">
+            <div class="bow-loops"></div>
+            <div class="bow-knot"></div>
+            <span class="pull-text">Click To Untie</span>
+        </div>
+    </div>
+
+    <!-- AMBIENT ANIMATIONS CONTAINER -->
+    <div id="ambient-animations"></div>
+
+    <!-- 2. MAIN CONTENT REVEAL -->
+    <div id="main-content">
+        <header class="hero">
+            <p class="hero-title">Lock It In</p>
+            <h2 class="hero-names">Sajin & Jinisha</h2>
+            <div class="hero-date">JUN <span>29</span> 2026</div>
+
+            <div class="countdown-wrapper">
+                <div class="time-box"><span class="time-number" id="days">00</span><span class="time-label">Days</span></div>
+                <div class="time-box"><span class="time-number" id="hours">00</span><span class="time-label">Hours</span></div>
+                <div class="time-box"><span class="time-number" id="minutes">00</span><span class="time-label">Mins</span></div>
+                <div class="time-box"><span class="time-number" id="seconds">00</span><span class="time-label">Secs</span></div>
+            </div>
+        </header>
+
+        <section class="section details-section scroll-reveal">
+            <h2 class="section-title">The Details</h2>
+            <div class="details-grid">
+                <div class="detail-item tilt-card">
+                    <svg class="detail-icon" viewBox="0 0 24 24">
+                        <path d="M12 2L8 6H4v16h16V6h-4l-4-4zm0 2.83L14.17 7H9.83L12 4.83zM6 8h12v12H6V8zm6 3c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3zm0 4.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+                    </svg>
+                    <h3>The Ceremony</h3>
+                    <p>St. Mary's Church<br>Vallavilai<br>10:00 AM onwards</p>
+                </div>
+                <!-- Google Maps Directions Link -->
+                <div class="detail-item tilt-card" onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=St.+Mary%27s+Church,+Vallavilai', '_blank')">
+                    <svg class="detail-icon" viewBox="0 0 24 24">
+                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                    </svg>
+                    <h3>Get Directions</h3>
+                    <p>Click here to open maps and easily find your way to our celebration.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section cheers-section scroll-reveal" id="cheers-section">
+            <h2 class="section-title" style="color: var(--emerald-dark);">Toast to the Couple</h2>
+            <p class="cheers-subtitle">Tap the glasses to send your cheers!</p>
+            <div class="glasses-wrapper" id="cheers-btn">
+                <div class="glass">🥂</div>
+                <div class="glass" style="transform: scaleX(-1);">🥂</div>
+            </div>
+        </section>
+
+        <section class="section story-section scroll-reveal">
+            <h2 class="section-title">Our Love Story</h2>
+            <p class="story-text">
+                Two lives, two hearts, joined together in friendship, united forever in love. It all started with a simple hello, and now we are ready to say "I do." We cannot wait to share the beginning of our forever with all of our dearest family and friends.
+            </p>
+
+            <div class="wishes-wrapper">
+                <h3 class="section-title" style="font-size: clamp(2rem, 5vw, 2.5rem);">Guestbook</h3>
+                <form class="wish-form" id="wish-form">
+                    <input type="text" id="wish-name" placeholder="YOUR NAME" required>
+                    <textarea id="wish-text" placeholder="Share your wishes for the couple..." required></textarea>
+                    <button type="submit" class="rsvp-btn" style="align-self: center;">Leave a Message</button>
+                </form>
+                <div class="wishes-board" id="wishes-board">
+                    <div class="wish-card">
+                        <h4>Aunt Mary</h4>
+                        <p>"Wishing you both a lifetime of love and joy. So beautiful to see you two together!"</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section details-section scroll-reveal" style="padding-bottom: 120px;">
+            <h2 class="section-title">RSVP</h2>
+            <p class="cheers-subtitle" style="color: #aaa;">Kindly respond by May 1st, 2026</p>
+            
+            <div class="rsvp-buttons">
+                <button class="rsvp-btn" id="btn-yes">Joyfully Accept</button>
+                <button class="rsvp-btn" id="btn-no">Regretfully Decline</button>
+            </div>
+
+            <div class="scratch-container">
+                <p class="cheers-subtitle" style="color: #aaa; margin-bottom: 20px;">Scratch Foil To Reveal Date</p>
+                <div class="scratch-card" id="scratch-card-container">
+                    <div class="hidden-date">29 JUN 2026</div>
+                    <canvas id="scratch-canvas"></canvas>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // --- 1. Audio Variables ---
+        const ribbonAudio = document.getElementById('ribbon-audio');
+        const popAudio = document.getElementById('pop-audio');
+        const successAudio = document.getElementById('success-audio');
+        const clinkAudio = document.getElementById('clink-audio');
+        const bgAudio = document.getElementById('bg-audio');
+        const musicIcon = document.getElementById('music-icon');
+
+        function playSound(audioElement) {
+            audioElement.currentTime = 0;
+            audioElement.volume = 0.6;
+            audioElement.play().catch(e => console.log("Audio play blocked", e));
+        }
+
+        // --- 2. Ribbon Untie / Pull Interaction ---
+        const untieBtn = document.getElementById('untie-btn');
+        const entranceOverlay = document.getElementById('entrance-overlay');
+        
+        untieBtn.addEventListener('click', () => {
+            playSound(ribbonAudio);
+            entranceOverlay.classList.add('untied');
+            
+            setTimeout(() => {
+                entranceOverlay.style.visibility = 'hidden';
+                document.body.classList.add('opened');
+                
+                bgAudio.volume = 0.5;
+                bgAudio.play()
+                    .then(() => { musicIcon.innerText = '🔊'; })
+                    .catch(e => console.log("Audio autoplay prevented"));
+                
+                initScratchCard();
+            }, 2500); 
+        });
+
+        // --- 3. Ambient Background Animations (Balloons & Flowers) ---
+        function spawnBalloon() {
+            if (!document.body.classList.contains('opened')) return;
+            const container = document.getElementById('ambient-animations');
+            const balloon = document.createElement('div');
+            balloon.classList.add('ambient-balloon');
+            
+            const colors = ['rgba(212, 175, 55, 0.4)', 'rgba(243, 229, 171, 0.3)', 'rgba(255, 255, 255, 0.2)'];
+            balloon.style.background = colors[Math.floor(Math.random() * colors.length)];
+            
+            balloon.style.left = Math.random() * 100 + 'vw';
+            const size = Math.random() * 20 + 25; 
+            balloon.style.width = size + 'px';
+            balloon.style.height = (size * 1.25) + 'px';
+            
+            const duration = Math.random() * 10 + 15; 
+            balloon.style.animationDuration = duration + 's';
+            
+            container.appendChild(balloon);
+            setTimeout(() => balloon.remove(), duration * 1000);
+        }
+
+        function spawnFlower() {
+            if (!document.body.classList.contains('opened')) return;
+            const container = document.getElementById('ambient-animations');
+            const flower = document.createElement('div');
+            flower.classList.add('ambient-flower');
+            
+            const flowers = ['❀', '✿', '❁', '✧'];
+            flower.innerText = flowers[Math.floor(Math.random() * flowers.length)];
+            flower.style.left = Math.random() * 100 + 'vw';
+            
+            const size = Math.random() * 1 + 0.8; 
+            flower.style.fontSize = size + 'rem';
+            
+            const duration = Math.random() * 10 + 12; 
+            flower.style.animationDuration = duration + 's';
+            
+            container.appendChild(flower);
+            setTimeout(() => flower.remove(), duration * 1000);
+        }
+
+        setInterval(spawnBalloon, 4000); 
+        setInterval(spawnFlower, 2500);  
+
+        // --- 4. Rose Hover Cursor Effect ---
+        let lastRoseTime = 0;
+        document.addEventListener('mousemove', (e) => {
+            // Only show roses when the website is officially opened
+            if (!document.body.classList.contains('opened')) return;
+
+            const now = Date.now();
+            // Throttle spawning to prevent lag (one rose every 80ms)
+            if (now - lastRoseTime < 80) return; 
+            lastRoseTime = now;
+
+            const rose = document.createElement('div');
+            rose.classList.add('cursor-rose');
+            
+            // Randomly select between different romantic emojis
+            const roses = ['🌹', '🥀', '🌸', '✨'];
+            rose.innerText = roses[Math.floor(Math.random() * roses.length)];
+            
+            rose.style.left = e.clientX + 'px';
+            rose.style.top = e.clientY + 'px';
+            
+            document.body.appendChild(rose);
+            
+            // Remove the element after animation finishes
+            setTimeout(() => rose.remove(), 1500);
+        });
+
+        // --- 5. Cinematic Scroll Reveal ---
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.scroll-reveal').forEach(section => observer.observe(section));
+
+        // --- 6. 3D Tilt Hover Effect (Desktop Only) ---
+        if (window.matchMedia("(hover: hover)").matches) {
+            document.querySelectorAll('.tilt-card').forEach(item => {
+                item.addEventListener('mousemove', e => {
+                    const rect = item.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const xPct = x / rect.width - 0.5;
+                    const yPct = y / rect.height - 0.5;
+                    item.style.transform = `perspective(1000px) rotateX(${yPct * -10}deg) rotateY(${xPct * 10}deg) scale(1.02)`;
+                });
+                item.addEventListener('mouseleave', () => {
+                    item.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)`;
+                });
+            });
+        }
+
+        // --- 7. Cheers Interaction ---
+        const cheersBtn = document.getElementById('cheers-btn');
+        cheersBtn.addEventListener('click', () => {
+            playSound(clinkAudio);
+            cheersBtn.classList.add('clinked');
+            setTimeout(() => cheersBtn.classList.remove('clinked'), 600);
+
+            for (let i = 0; i < 20; i++) {
+                const bubble = document.createElement('div');
+                bubble.classList.add('champagne-bubble');
+                bubble.style.left = `${45 + (Math.random() * 10)}%`;
+                const size = Math.random() * 12 + 5;
+                bubble.style.width = `${size}px`;
+                bubble.style.height = `${size}px`;
+                bubble.style.animationDuration = `${Math.random() * 2 + 2}s`;
+                bubble.style.animationDelay = `${Math.random() * 0.3}s`;
+                cheersBtn.appendChild(bubble);
+                setTimeout(() => bubble.remove(), 4000);
+            }
+        });
+
+        // --- 8. Guestbook Logic ---
+        const wishForm = document.getElementById('wish-form');
+        const wishesBoard = document.getElementById('wishes-board');
+        wishForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            playSound(successAudio);
+
+            const name = document.getElementById('wish-name').value;
+            const text = document.getElementById('wish-text').value;
+            const newCard = document.createElement('div');
+            newCard.classList.add('wish-card');
+            newCard.innerHTML = `<h4>${name}</h4><p>"${text}"</p>`;
+            wishesBoard.prepend(newCard);
+            wishForm.reset();
+        });
+
+        // --- 9. RSVP Confetti ---
+        const btnYes = document.getElementById('btn-yes');
+        const btnNo = document.getElementById('btn-no');
+
+        btnYes.addEventListener('click', () => {
+            playSound(popAudio);
+            btnYes.classList.add('selected');
+            btnNo.classList.remove('selected');
+            
+            const colors = ['#D4AF37', '#F3E5AB', '#FFFFFF', '#997A00'];
+            for(let i = 0; i < 40; i++) {
+                const conf = document.createElement('div');
+                conf.classList.add('confetti-piece');
+                conf.style.left = Math.random() * 100 + 'vw';
+                conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                if(Math.random() > 0.5) conf.style.borderRadius = '50%';
+                conf.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                conf.style.animationDelay = (Math.random() * 0.2) + 's';
+                document.body.appendChild(conf);
+                setTimeout(() => conf.remove(), 5000);
+            }
+        });
+
+        btnNo.addEventListener('click', () => {
+            playSound(popAudio);
+            btnNo.classList.add('selected');
+            btnYes.classList.remove('selected');
+        });
+
+        // --- 10. Floating Audio Player ---
+        const musicBtn = document.getElementById('music-btn');
+        musicBtn.addEventListener('click', () => {
+            if (bgAudio.paused) {
+                bgAudio.play();
+                musicIcon.innerText = '🔊';
+            } else {
+                bgAudio.pause();
+                musicIcon.innerText = '🎵';
+            }
+        });
+
+        // --- 11. Countdown Clock ---
+        const weddingDate = new Date("June 29, 2026 10:00:00").getTime();
+        setInterval(() => {
+            const now = new Date().getTime();
+            const distance = weddingDate - now;
+            if (distance < 0) return;
+            document.getElementById("days").innerText = Math.floor(distance / (1000 * 60 * 60 * 24)).toString().padStart(2, '0');
+            document.getElementById("hours").innerText = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toString().padStart(2, '0');
+            document.getElementById("minutes").innerText = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
+            document.getElementById("seconds").innerText = Math.floor((distance % (1000 * 60)) / 1000).toString().padStart(2, '0');
+        }, 1000);
+
+        // --- 12. Responsive Scratch Card Logic ---
+        let isDrawing = false;
+        
+        function initScratchCard() {
+            const container = document.getElementById('scratch-card-container');
+            const canvas = document.getElementById('scratch-canvas');
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
+            
+            const rect = container.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, '#A67C00'); 
+            gradient.addColorStop(0.3, '#F3E5AB'); 
+            gradient.addColorStop(0.5, '#D4AF37'); 
+            gradient.addColorStop(0.7, '#F3E5AB'); 
+            gradient.addColorStop(1, '#8B6508'); 
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#0A1410'; 
+            ctx.font = '400 14px Montserrat';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.letterSpacing = "2px";
+            ctx.fillText('SCRATCH FOIL TO REVEAL', canvas.width / 2, canvas.height / 2);
+
+            function getMousePos(e) {
+                const rect = canvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return {
+                    x: (clientX - rect.left) * (canvas.width / rect.width),
+                    y: (clientY - rect.top) * (canvas.height / rect.height)
+                };
+            }
+
+            function scratch(e) {
+                if (!isDrawing) return;
+                if (e.cancelable) e.preventDefault(); 
+                const pos = getMousePos(e);
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, 25, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            canvas.addEventListener('mousedown', () => isDrawing = true);
+            canvas.addEventListener('mousemove', scratch);
+            window.addEventListener('mouseup', () => isDrawing = false);
+            canvas.addEventListener('touchstart', (e) => { isDrawing = true; scratch(e); }, { passive: false });
+            canvas.addEventListener('touchmove', scratch, { passive: false });
+            window.addEventListener('touchend', () => isDrawing = false);
+        }
+
+        window.addEventListener('resize', () => {
+            if(document.body.classList.contains('opened')) {
+                setTimeout(initScratchCard, 200);
+            }
+        });
+    </script>
+</body>
+</html>
